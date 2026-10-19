@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block title %}Menu favorit — KostFit{% endblock %}
+{% block content %}<span class="eyebrow">KOLEKSI PRIBADI</span>
+<h1 class="fw-bold mt-2 mb-4">Menu favorit</h1>
+{% if meals %}<div class="row g-3">{% for meal in meals %}<div class="col-sm-6 col-lg-4">
+        <article class="meal-card h-100">
+            <div class="meal-image-wrap"><img src="{{ meal.image_url }}" alt="Foto {{ meal.name }}"
+                    onerror="this.onerror=null;this.src='{{ url_for('static',filename='images/meal-placeholder.svg') }}'"><span
+                    class="meal-category">{{ meal.category }}</span></div>
+            <div class="meal-body">
+                <h3 class="h5 fw-bold">{{ meal.name }}</h3>
+                <p class="text-secondary small">{{ meal.reason }}</p>
+                <div class="fw-bold mb-3">Rp{{ "{:,}".format(meal.cost).replace(",", ".") }}</div>
+                <form method="post" action="{{ url_for('favorite',meal_id=meal.id) }}"><button
+                        class="btn btn-outline-success btn-sm">Hapus dari favorit</button></form>
+            </div>
+        </article>
+    </div>{% endfor %}</div>{% else %}<div class="empty-state">
+    <h3>Belum ada menu favorit</h3>
+    <p>Simpan menu dari dashboard untuk mengumpulkannya di sini.</p><a class="btn btn-success"
+        href="{{ url_for('dashboard') }}">Lihat rekomendasi</a>
+</div>{% endif %}{% endblock %}

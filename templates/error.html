@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}{{ code }} — KostFit{% endblock %}
+{% block content %}<div class="empty-state">
+    <div class="eyebrow">ERROR {{ code }}</div>
+    <h1 class="fw-bold mt-2">{{ message }}</h1><a class="btn btn-success mt-3" href="{{ url_for('index') }}">Kembali ke
+        beranda</a>
+</div>{% endblock %}

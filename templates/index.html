@@ -1,0 +1,58 @@
+{% extends "base.html" %}{% block title %}KostFit — Rekomendasi Makan Sehat{% endblock %}
+{% block content %}
+<section class="hero p-4 p-lg-5 rounded-4 mb-5">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-7">
+            <span class="eyebrow">PERSONAL MEAL PLANNER</span>
+            <h1 class="display-3 fw-bold mt-3">Makan lebih baik.<br><span class="green">Tetap sesuai budget.</span></h1>
+            <p class="lead text-secondary mt-3">Rekomendasi menu harian untuk anak kost berdasarkan anggaran, aktivitas,
+                preferensi, dan pantangan makanan—dengan aturan yang bisa dijelaskan.</p>
+            <div class="d-flex flex-wrap gap-2 mt-4"><a class="btn btn-success btn-lg"
+                    href="{{ url_for('register') }}">Mulai sekarang</a><a class="btn btn-outline-dark btn-lg"
+                    href="{{ url_for('login') }}">Masuk akun</a></div>
+            <div class="trust-row mt-4"><span>Aturan transparan</span><span>Menu bergambar</span><span>Riwayat
+                    personal</span></div>
+        </div>
+        <div class="col-lg-5">
+            <div class="hero-photo"><img src="{{ url_for('static',filename='images/hero-meal.svg') }}"
+                    alt="Ilustrasi piring makan seimbang">
+                <div class="photo-caption"><span class="caption-dot"></span> Dibuat sesuai profilmu</div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="mb-5">
+    <div class="section-heading">
+        <div><span class="eyebrow">CARA KERJA</span>
+            <h2 class="fw-bold mt-2">Rekomendasi yang punya alasan</h2>
+        </div>
+        <p class="text-secondary">Bukan sekadar daftar resep. KostFit menggunakan aturan untuk menyaring dan memilih
+            menu.</p>
+    </div>
+    <div class="row g-3 mt-2">
+        <div class="col-md-4">
+            <div class="feature h-100">
+                <div class="step-no">01</div>
+                <h5>Lengkapi profil</h5>
+                <p>Masukkan budget, aktivitas, preferensi, dan alergi yang perlu dihindari.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature h-100">
+                <div class="step-no">02</div>
+                <h5>Mesin aturan bekerja</h5>
+                <p>Inference engine mengevaluasi aturan IF–THEN pada knowledge base makanan.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature h-100">
+                <div class="step-no">03</div>
+                <h5>Lihat menu dan alasan</h5>
+                <p>Periksa gambar menu, perkiraan biaya, bahan, dan aturan yang aktif.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="disclaimer"><strong>Catatan:</strong> KostFit adalah prototipe akademik. Estimasi harga dan gizi adalah data
+    simulasi, bukan nasihat medis atau perhitungan kebutuhan gizi individual.</div>
+{% endblock %}

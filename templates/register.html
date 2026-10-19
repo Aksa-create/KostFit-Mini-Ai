@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}Buat akun — KostFit{% endblock %}
+{% block content %}<div class="auth-layout">
+    <div class="auth-card"><img class="auth-logo" src="{{ url_for('static',filename='images/kostfit-logo.svg') }}"
+            alt="KostFit"><span class="eyebrow">AKUN BARU</span>
+        <h1 class="h2 fw-bold mt-2">Mulai dari profilmu</h1>
+        <p class="text-secondary">Buat akun untuk menyimpan preferensi dan menu favorit.</p>
+        <form method="post" class="mt-4"><label class="form-label">Nama lengkap</label><input class="form-control mb-3"
+                name="name" required maxlength="80" autocomplete="name"><label class="form-label">Email</label><input
+                class="form-control mb-3" type="email" name="email" required autocomplete="email"><label
+                class="form-label">Password</label><input class="form-control mb-2" type="password" name="password"
+                minlength="8" required autocomplete="new-password">
+            <div class="form-text mb-4">Minimal 8 karakter. Password disimpan dalam bentuk hash.</div><button
+                class="btn btn-success w-100 btn-lg">Buat akun</button>
+        </form>
+        <p class="mt-4 text-center text-secondary">Sudah punya akun? <a href="{{ url_for('login') }}">Masuk</a></p>
+    </div>
+</div>{% endblock %}

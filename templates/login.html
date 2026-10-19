@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block title %}Masuk — KostFit{% endblock %}
+{% block content %}<div class="auth-layout">
+    <div class="auth-card"><img class="auth-logo" src="{{ url_for('static',filename='images/kostfit-logo.svg') }}"
+            alt="KostFit"><span class="eyebrow">SELAMAT DATANG</span>
+        <h1 class="h2 fw-bold mt-2">Masuk ke KostFit</h1>
+        <p class="text-secondary">Lanjutkan rencana makan yang sesuai denganmu.</p>
+        <form method="post" class="mt-4"><label class="form-label">Email</label><input class="form-control mb-3"
+                type="email" name="email" required autocomplete="email"><label class="form-label">Password</label><input
+                class="form-control mb-4" type="password" name="password" required
+                autocomplete="current-password"><button class="btn btn-success w-100 btn-lg">Masuk</button></form>
+        <p class="mt-4 text-center text-secondary">Belum punya akun? <a href="{{ url_for('register') }}">Buat akun</a>
+        </p>
+    </div>
+</div>{% endblock %}

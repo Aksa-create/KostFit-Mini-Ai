@@ -1,0 +1,56 @@
+{% extends "base.html" %}{% block title %}{{ 'Edit menu' if meal else 'Tambah menu' }} — KostFit{% endblock %}
+{% block content %}<a href="{{ url_for('admin') }}" class="text-decoration-none">← Kembali ke panel admin</a>
+<div class="form-page mt-3"><span class="eyebrow">KNOWLEDGE BASE</span>
+    <h1 class="h2 fw-bold mt-2">{{ 'Edit menu' if meal else 'Tambah menu' }}</h1>
+    <p class="text-secondary">Lengkapi informasi menu yang akan dipakai mesin rekomendasi.</p>
+    <form method="post" class="panel mt-4">
+        <div class="row g-3">
+            <div class="col-md-8"><label class="form-label">Nama menu</label><input class="form-control" name="name"
+                    required value="{{ meal.name if meal else '' }}"></div>
+            <div class="col-md-4"><label class="form-label">Kategori</label><select class="form-select"
+                    name="category">{% for cat in ['Sarapan','Makan siang','Makan malam','Camilan'] %}<option {% if meal
+                        and meal.category==cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}</select></div>
+            <div class="col-md-4"><label class="form-label">Harga estimasi (Rp)</label><input class="form-control"
+                    type="number" min="0" name="cost" required value="{{ meal.cost if meal else 8000 }}"></div>
+            <div class="col-md-4"><label class="form-label">Sumber protein</label><input class="form-control"
+                    name="protein" value="{{ meal.protein if meal else '' }}"></div>
+            <div class="col-md-4"><label class="form-label">Tag</label><input class="form-control" name="tags"
+                    value="{{ meal.tags if meal else '' }}" placeholder="nasi tempe sayur"></div>
+            <div class="col-12"><label class="form-label">Bahan makanan</label><input class="form-control"
+                    name="ingredients" required value="{{ meal.ingredients if meal else '' }}"
+                    placeholder="nasi, tempe, sayuran"></div>
+            <div class="col-12"><label class="form-label">URL gambar menu</label><input class="form-control" type="url"
+                    name="image_url" required value="{{ meal.image_url if meal else '' }}" placeholder="https://...">
+            </div>
+            <div class="col-12"><label class="form-label">Alasan rekomendasi</label><textarea class="form-control"
+                    name="reason" rows="2">{{ meal.reason if meal else '' }}</textarea></div>
+            <div class="col-md-3"><label class="form-label">Kalori (kkal)*</label><input class="form-control"
+                    type="number" min="0" name="calories" value="{{ meal.calories if meal else 0 }}"></div>
+            <div class="col-md-3"><label class="form-label">Protein (g)*</label><input class="form-control"
+                    type="number" min="0" name="protein_g" value="{{ meal.protein_g if meal else 0 }}"></div>
+            <div class="col-md-3"><label class="form-label">Karbo (g)*</label><input class="form-control" type="number"
+                    min="0" name="carbs_g" value="{{ meal.carbs_g if meal else 0 }}"></div>
+            <div class="col-md-3"><label class="form-label">Lemak (g)*</label><input class="form-control" type="number"
+                    min="0" name="fat_g" value="{{ meal.fat_g if meal else 0 }}"></div>
+            <div class="col-md-4">
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="contains_fish" id="fish"
+                        {% if meal and meal.contains_fish %}checked{% endif %}><label class="form-check-label"
+                        for="fish">Mengandung ikan</label></div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="contains_egg" id="egg" {%
+                        if meal and meal.contains_egg %}checked{% endif %}><label class="form-check-label"
+                        for="egg">Mengandung telur</label></div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="active" id="active" {% if
+                        not meal or meal.active %}checked{% endif %}><label class="form-check-label" for="active">Aktif
+                        untuk rekomendasi</label></div>
+            </div>
+        </div>
+        <div class="small text-secondary mt-3">*Nilai gizi diisi untuk demonstrasi dan perlu diverifikasi dari sumber
+            tepercaya.</div>
+        <div class="d-flex gap-2 mt-4"><button class="btn btn-success">Simpan menu</button><a
+                class="btn btn-outline-secondary" href="{{ url_for('admin') }}">Batal</a></div>
+    </form>
+</div>{% endblock %}

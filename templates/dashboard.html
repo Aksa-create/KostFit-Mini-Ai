@@ -1,0 +1,152 @@
+{% extends "base.html" %}{% block title %}Dashboard — KostFit{% endblock %}
+{% block content %}
+<div class="dashboard-head">
+    <div><span class="eyebrow">DASHBOARD PERSONAL</span>
+        <h1 class="fw-bold mt-2">Halo, {{ session.get('name') }}</h1>
+        <p class="text-secondary mb-0">Atur profil untuk menghitung ulang rekomendasi menu.</p>
+    </div>
+    <form method="post" action="{{ url_for('save_recommendation') }}"><button class="btn btn-outline-success">Simpan
+            hasil hari ini</button></form>
+</div>
+<div class="row g-4">
+    <aside class="col-lg-4">
+        <div class="panel sticky-panel">
+            <h4 class="fw-bold">Profil makanan</h4>
+            <p class="small text-secondary">Perubahan profil akan diproses oleh inference engine.</p>
+            <form method="post"><label class="form-label">Usia</label><input class="form-control mb-3" type="number"
+                    name="age" min="16" max="100" required value="{{ profile.age }}">
+                <label class="form-label">Aktivitas harian</label><select class="form-select mb-3" name="activity">{%
+                    for val,label in [('rendah','Rendah'),('sedang','Sedang'),('tinggi','Tinggi')] %}<option
+                        value="{{ val }}" {% if profile.activity==val %}selected{% endif %}>{{ label }}</option>{%
+                    endfor %}</select>
+                <label class="form-label">Budget per hari (Rp)</label><input class="form-control mb-3" type="number"
+                    name="budget" min="5000" max="500000" step="1000" required value="{{ profile.budget }}">
+                <label class="form-label">Pola makan</label><select class="form-select mb-3" name="diet">{% for
+                    val,label in [('semua','Tidak ada batasan'),('vegetarian','Vegetarian'),('tanpa_hewani','Tanpa bahan
+                    hewani')] %}<option value="{{ val }}" {% if profile.diet==val %}selected{% endif %}>{{ label }}
+                    </option>{% endfor %}</select>
+                <label class="form-label">Tidak menyukai</label>{% for val,label in [('ikan','Ikan')] %}<div
+                    class="form-check mb-2"><input class="form-check-input" type="checkbox" name="dislikes"
+                        value="{{ val }}" id="d-{{ val }}" {% if val in dislikes %}checked{% endif %}><label
+                        class="form-check-label" for="d-{{ val }}">{{ label }}</label></div>{% endfor %}
+                <label class="form-label mt-3">Alergi yang perlu dihindari</label>{% for val,label in
+                [('telur','Telur'),('kacang','Kacang'),('susu','Susu')] %}<div class="form-check mb-2"><input
+                        class="form-check-input" type="checkbox" name="allergies" value="{{ val }}" id="a-{{ val }}" {%
+                        if val in allergies %}checked{% endif %}><label class="form-check-label" for="a-{{ val }}">{{
+                        label }}</label></div>{% endfor %}
+                <label class="form-label mt-3">Fasilitas memasak</label><select class="form-select mb-3" name="cooking">
+                    <option value="kompor" {% if profile.cooking=='kompor' %}selected{% endif %}>Kompor</option>
+                    <option value="rice_cooker" {% if profile.cooking=='rice_cooker' %}selected{% endif %}>Rice cooker
+                        saja</option>
+                    <option value="tanpa_masak" {% if profile.cooking=='tanpa_masak' %}selected{% endif %}>Tanpa memasak
+                    </option>
+                </select>
+                <label class="form-label mt-3">Menu yang diinginkan (opsional)</label>
+                <select class="form-select mb-3" name="preferred_menu">
+                    <option value="" {% if not preferred_menu %}selected{% endif %}>Bebaskan algoritma memilih</option>
+                    {% for menu_name in available_menu_names %}
+                    <option value="{{ menu_name }}" {% if preferred_menu == menu_name %}selected{% endif %}>{{ menu_name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text mb-3">Menu pilihan akan diprioritaskan jika lolos aturan alergi, pola makan, dan budget.</div>
+                <label class="form-label">Tujuan</label><select class="form-select mb-4" name="goal">
+                    <option value="seimbang" {% if profile.goal=='seimbang' %}selected{% endif %}>Makan lebih seimbang
+                    </option>
+                    <option value="hemat" {% if profile.goal=='hemat' %}selected{% endif %}>Menghemat pengeluaran
+                    </option>
+                    <option value="praktis" {% if profile.goal=='praktis' %}selected{% endif %}>Praktis dan cepat
+                    </option>
+                </select>
+                <button class="btn btn-success w-100">Simpan profil & hitung</button>
+            </form>
+        </div>
+    </aside>
+    <section class="col-lg-8">
+        <div class="budget-banner">
+            <div>
+                <div class="small opacity-75">Estimasi biaya menu terpilih</div>
+                <div class="display-6 fw-bold">Rp{{ "{:,}".format(total).replace(",", ".") }}</div>
+                <div class="small opacity-75">Budget harian: Rp{{ "{:,}".format(profile.budget).replace(",", ".") }}
+                </div>
+            </div>
+            <div class="budget-progress">
+                <div class="progress">
+                    <div class="progress-bar"
+                        style="width:{{ [((total / profile.budget * 100) if profile.budget else 0),100]|min }}%"></div>
+                </div><small>{{ ((total / profile.budget * 100)|round)|int if profile.budget else 0 }}% dari
+                    budget</small>
+            </div>
+        </div>
+        <div class="section-heading mt-4">
+            <div><span class="eyebrow">JADWAL MAKAN HARIAN</span>
+                <h2 class="h3 fw-bold mt-1">Rencana makan & alternatif menu</h2>
+                <p class="small text-secondary mb-0">Menu prioritas ditandai hijau. Menu alternatif tetap ditampilkan selama lolos aturan alergi/pola makan.</p>
+            </div><span class="small text-secondary">{{ meals|length }} opsi menu</span>
+        </div>
+        {% for slot in ['Sarapan','Makan siang','Makan malam','Camilan'] %}
+            {% set slot_meals = meals|selectattr('category','equalto',slot)|list %}
+            <div class="mt-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h3 class="h5 fw-bold mb-0">{{ {'Sarapan':'Sarapan','Makan siang':'Makan siang','Makan malam':'Makan malam','Camilan':'Camilan'}[slot] }}</h3>
+                    <span class="small text-secondary">{{ slot_meals|length }} pilihan</span>
+                </div>
+                {% if slot_meals %}
+                <div class="row g-3">
+                    {% for meal in slot_meals %}
+                    <div class="col-md-6">
+                        <article class="meal-card h-100 {{ 'border border-success border-2' if meal.priority else '' }}">
+                            <div class="meal-image-wrap">
+                                <img src="{{ meal.image_url }}" alt="Foto {{ meal.name }}" loading="lazy"
+                                    onerror="this.onerror=null;this.src='{{ url_for('static',filename='images/meal-placeholder.svg') }}'">
+                                <span class="meal-category">{{ meal.category }}</span>
+                            </div>
+                            <div class="meal-body">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <h4 class="h5 fw-bold">{{ meal.name }}</h4>
+                                    <span class="meal-cost">Rp{{ "{:,}".format(meal.cost).replace(",", ".") }}</span>
+                                </div>
+                                {% if meal.priority %}
+                                <span class="badge text-bg-success mb-2">PRIORITAS</span>
+                                {% else %}
+                                <span class="badge text-bg-secondary mb-2">ALTERNATIF · TIDAK PRIORITAS</span>
+                                {% endif %}
+                                <p class="small text-secondary">{{ meal.reason }}</p>
+                                <div class="ingredient-line"><strong>Bahan:</strong> {{ meal.ingredients }}</div>
+                                <div class="nutrition-row"><span>{{ meal.calories }} kkal*</span><span>Protein {{ meal.protein_g }} g*</span></div>
+                                <p class="small mt-2 mb-2">{{ meal.priority_reason }}</p>
+                                <form method="post" action="{{ url_for('favorite',meal_id=meal.id) }}">
+                                    <button class="btn btn-sm {{ 'btn-success' if meal.id in favorites else 'btn-outline-success' }}">
+                                        {{ 'Tersimpan di favorit' if meal.id in favorites else 'Simpan ke favorit' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state py-3"><p class="mb-0">Belum ada menu yang memenuhi aturan untuk kategori ini.</p></div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div class="panel mt-4">
+            <div class="section-heading">
+                <div><span class="eyebrow">PENJELASAN</span>
+                    <h2 class="h5 fw-bold mt-1">Aturan yang dievaluasi</h2>
+                </div><span class="tag">Production Rule-Based</span>
+            </div>{% for rule in rules %}<div class="rule-line"><span class="rule-dot"></span><span>{{ rule }}</span>
+            </div>{% endfor %}<p class="small text-secondary mt-3 mb-0">*Nilai gizi pada prototype merupakan perkiraan
+                simulasi. Harga dan komposisi perlu diverifikasi sebelum digunakan untuk keputusan nyata.</p>
+        </div>
+        <div class="panel mt-4">
+            <div class="section-heading">
+                <h2 class="h5 fw-bold">Riwayat rekomendasi</h2><a href="{{ url_for('favorites') }}">Lihat favorit</a>
+            </div>{% if history %}{% for item in history %}<div class="history-row">
+                <div>{{ item.summary }}</div>
+                <div class="small text-secondary">{{ item.created_at }} · Rp{{
+                    "{:,}".format(item.total_cost).replace(",", ".") }}</div>
+            </div>{% endfor %}{% else %}<p class="text-secondary mb-0">Belum ada riwayat. Simpan hasil rekomendasi untuk
+                menampilkannya di sini.</p>{% endif %}
+        </div>
+    </section>
+</div>{% endblock %}
